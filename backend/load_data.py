@@ -6,7 +6,7 @@ def get_image_url(photo_reference, api_key):
     """
     base_url = "https://maps.googleapis.com/maps/api/place/photo"
     params = {
-        'maxwidth': 400,  # You can adjust the size as needed
+        'maxwidth': 600,  # You can adjust the size as needed
         'photoreference': photo_reference,
         'key': api_key
     }

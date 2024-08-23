@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import mapboxgl from 'mapbox-gl';
-import './MapComponent.css';
 import axios from 'axios';
+
+import 'leaflet/dist/leaflet.css';
+import './style.css';
 
 // Constants
 const SERVER_URL = 'http://localhost:8000/api/restaurants/';

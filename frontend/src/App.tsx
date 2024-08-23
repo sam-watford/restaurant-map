@@ -1,12 +1,9 @@
-// src/App.tsx
 import React from 'react';
-import MapComponent from './components/MapComponent';
+import Home from './screens/Home';
 
 const App: React.FC = () => {
   return (
-    <div>
-      <MapComponent />
-    </div>
+    <Home />
   );
 };
 
