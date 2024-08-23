@@ -1,1 +1,42 @@
+version: "3.7"
 
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_DB: energy_domain_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    command: npm start
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  data_loader:
+    build: ./backend
+    command: ["python", "load_data.py"]
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

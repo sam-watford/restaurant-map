@@ -26,7 +26,14 @@ SECRET_KEY = 'django-insecure-f^r2#(g(c##l@wyp+_%i%fy8dw-tcqn7fvy3v%!f5@zxa+zgve
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'backend',
+    'frontend',
+    'backend:8000',
+    'frontend:3000',
+]
 
 
 # Application definition
@@ -88,7 +95,7 @@ DATABASES = {
         'NAME': 'energy_domain_db',
         'USER': 'postgres',
         'PASSWORD': 'password',
-        'HOST': 'localhost',
+        'HOST': 'db',
         'PORT': 5432,
     }
 }
