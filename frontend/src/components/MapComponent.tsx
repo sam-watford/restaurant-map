@@ -65,6 +65,7 @@ const MapClickHandler: React.FC<{ adding: boolean; setRestaurants: React.Dispatc
 };
 
 const MapComponent: React.FC = () => {
+  const [adding, setAdding] = useState(false);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([
     {
       id: 1,
@@ -172,7 +173,17 @@ const MapComponent: React.FC = () => {
       longitude: -97.3248859,
     },
   ]);
-  const [adding, setAdding] = useState(false);
+
+  useEffect(() => {
+    const mapContainer = document.querySelector('.leaflet-container');
+    if (mapContainer) {
+      if (adding) {
+        mapContainer.classList.add('crosshair-cursor');
+      } else {
+        mapContainer.classList.remove('crosshair-cursor');
+      }
+    }
+  }, [adding]);  
 
   return (
     <div className="map-container">
