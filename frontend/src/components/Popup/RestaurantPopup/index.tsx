@@ -1,6 +1,6 @@
 import React from 'react';
 import { Popup } from 'react-leaflet';
-import Image from '../../Image';
+import Image from '../../../components/Image';
 import { IRestaurant } from 'types/Restaurant.type';
 
 import './style.css';
