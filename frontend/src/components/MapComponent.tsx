@@ -4,15 +4,22 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import mapboxgl from 'mapbox-gl';
 import './MapComponent.css';
+import axios from 'axios';
+
+// Constants
+const SERVER_URL = 'http://localhost:8000/api/restaurants/';
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoic2FtLXdhdGZvcmQiLCJhIjoiY20wNjA4NDV3MDQ1dDJqb3F4OTl4cjF5MCJ9.uyyZ9VvLPBdlIU-rm20dXQ';
 
 interface Restaurant {
-  id: number;
+  id?: number;
   name: string;
   rating: number;
   latitude: number;
   longitude: number;
+  address?: string;
+  image_url?: string;
+  image?: string;
 }
 
 const restaurantIcon = L.icon({
@@ -43,20 +50,11 @@ const UpdateMapUrl: React.FC = () => {
   return null;
 };
 
-const MapClickHandler: React.FC<{ adding: boolean; setRestaurants: React.Dispatch<React.SetStateAction<Restaurant[]>>; setAdding: React.Dispatch<React.SetStateAction<boolean>> }> = ({ adding, setRestaurants, setAdding }) => {
+const MapClickHandler: React.FC<{ adding: boolean; setNewRestaurantPosition: React.Dispatch<React.SetStateAction<L.LatLng | null>>; setAdding: React.Dispatch<React.SetStateAction<boolean>> }> = ({ adding, setNewRestaurantPosition, setAdding }) => {
   useMapEvents({
     click: (event: L.LeafletMouseEvent) => {
       if (adding) {
-        const latlng = event.latlng;
-        const newRestaurant: Restaurant = {
-          id: Date.now(),
-          name: 'New Restaurant',
-          rating: 0,
-          latitude: latlng.lat,
-          longitude: latlng.lng,
-        };
-        setRestaurants(prevRestaurants => [...prevRestaurants, newRestaurant]);
-        setAdding(false);
+        setNewRestaurantPosition(event.latlng);
       }
     },
   });
@@ -66,113 +64,63 @@ const MapClickHandler: React.FC<{ adding: boolean; setRestaurants: React.Dispatc
 
 const MapComponent: React.FC = () => {
   const [adding, setAdding] = useState(false);
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([
-    {
-      id: 1,
-      name: 'Fort Worth Food Works',
-      rating: 4.9,
-      latitude: 32.7624286,
-      longitude: -97.3603063,
-    },
-    {
-      id: 2,
-      name: 'Toro Toro Fort Worth',
-      rating: 4.3,
-      latitude: 32.7559487,
-      longitude: -97.3324561,
-    },
-    {
-      id: 3,
-      name: 'Clay Pigeon Food & Drink',
-      rating: 4.6,
-      latitude: 32.7589,
-      longitude: -97.35608,
-    },
-    {
-      id: 4,
-      name: 'Little Red Wasp',
-      rating: 4.3,
-      latitude: 32.75224,
-      longitude: -97.329812,
-    },
-    {
-      id: 5,
-      name: 'The Capital Grille',
-      rating: 4.8,
-      latitude: 32.75247,
-      longitude: -97.32992,
-    },
-    {
-      id: 6,
-      name: 'GRACE',
-      rating: 4.6,
-      latitude: 32.7529693,
-      longitude: -97.3298985,
-    },
-    {
-      id: 7,
-      name: 'Razzoo\'s Cajun Cafe',
-      rating: 4.3,
-      latitude: 32.7551956,
-      longitude: -97.3319475,
-    },
-    {
-      id: 8,
-      name: 'Istanbul grill & bar',
-      rating: 4.7,
-      latitude: 32.754294,
-      longitude: -97.3329621,
-    },
-    {
-      id: 9,
-      name: 'Reata Restaurant',
-      rating: 4.5,
-      latitude: 32.7534473,
-      longitude: -97.3329569,
-    },
-    {
-      id: 10,
-      name: 'Taste Community Restaurant',
-      rating: 4.8,
-      latitude: 32.7316241,
-      longitude: -97.3260727,
-    },
-    {
-      id: 11,
-      name: 'Lounge Restaurant & Bar',
-      rating: 5,
-      latitude: 32.7531907,
-      longitude: -97.3336749,
-    },
-    {
-      id: 12,
-      name: 'branch & bird',
-      rating: 4.4,
-      latitude: 32.7524439,
-      longitude: -97.332991,
-    },
-    {
-      id: 13,
-      name: 'The Social House',
-      rating: 4.2,
-      latitude: 32.7503734,
-      longitude: -97.358536,
-    },
-    {
-      id: 14,
-      name: 'Tinies',
-      rating: 4.2,
-      latitude: 32.742859,
-      longitude: -97.325681,
-    },
-    {
-      id: 15,
-      name: 'Tia\'s On The Bluff',
-      rating: 4.1,
-      latitude: 32.7630306,
-      longitude: -97.3248859,
-    },
-  ]);
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [newRestaurantPosition, setNewRestaurantPosition] = useState<L.LatLng | null>(null);
+  const [newRestaurant, setNewRestaurant] = useState<Partial<Restaurant>>({
+    name: '',
+    rating: 0,
+    latitude: 0,
+    longitude: 0
+  });
+
+  useEffect(() => {
+    // Fetch restaurants from server
+    axios.get(SERVER_URL)
+      .then(response => {
+        setRestaurants(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching restaurants:', error);
+      });
+  }, []);
+
+  const handleAddRestaurant = async () => {
+    if (newRestaurantPosition) {
+      const restaurantData = {
+        ...newRestaurant,
+        latitude: newRestaurantPosition.lat,
+        longitude: newRestaurantPosition.lng
+      } as Restaurant;
+
+      if (!newRestaurant.name) {
+        return;
+      }
+
+      try {
+        const response = await axios.post(SERVER_URL, restaurantData);
+        if (response.status === 201) {
+          setRestaurants(prevRestaurants => [
+            ...prevRestaurants,
+            { ...restaurantData, id: response.data.id }
+          ]);
+        } else {
+          console.error('Failed to add restaurant:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error adding restaurant:', error);
+      } finally {
+        setAdding(false);
+        setNewRestaurantPosition(null);
+        setNewRestaurant({ name: '', rating: 0 });
+      }
+    }
+  };
+
+  const handleCancel = () => {
+    setNewRestaurantPosition(null);
+    setNewRestaurant({ name: '', rating: 0 });
+    setAdding(false);
+  };
 
   useEffect(() => {
     const mapContainer = document.querySelector('.leaflet-container');
@@ -183,7 +131,13 @@ const MapComponent: React.FC = () => {
         mapContainer.classList.remove('crosshair-cursor');
       }
     }
-  }, [adding]);  
+  }, [adding]);
+
+  const restaurantsOnMap = [...restaurants, newRestaurantPosition ? {
+    ...newRestaurant, 
+    latitude: newRestaurantPosition.lat,
+    longitude: newRestaurantPosition.lng
+  } : null];
 
   return (
     <div className="map-container">
@@ -193,27 +147,91 @@ const MapComponent: React.FC = () => {
           id='mapbox/streets-v12'
           accessToken={mapboxgl.accessToken}
         />
-        {restaurants.map(restaurant => (
-          <Marker
-            key={restaurant.id}
-            position={[restaurant.latitude, restaurant.longitude]}
-            icon={restaurantIcon}
-          >
-            <Popup>
-              <strong>{restaurant.name}</strong><br />
-              Rating: {restaurant.rating}
-            </Popup>
-          </Marker>
-        ))}
+        {restaurantsOnMap.map(restaurant => {
+            if(!restaurant){
+              return null;
+            }
+            return (
+              <Marker
+                key={restaurant.id}
+                position={[restaurant.latitude, restaurant.longitude]}
+                icon={restaurantIcon}
+              >
+                <Popup>
+                  <strong>{restaurant.name}</strong><br />
+                  Rating: {restaurant.rating}
+                  <br />
+                  {restaurant.address && <span>Address: {restaurant.address}</span>}
+                  {restaurant.image_url && <img src={restaurant.image_url} alt="Restaurant" style={{ width: '100px', height: '100px' }} />}
+                </Popup>
+              </Marker>
+            );
+          }
+        )}
         <UpdateMapUrl />
-        <MapClickHandler adding={adding} setRestaurants={setRestaurants} setAdding={setAdding} />
+        <MapClickHandler adding={adding} setNewRestaurantPosition={setNewRestaurantPosition} setAdding={setAdding} />
       </MapContainer>
 
       {!adding &&
         <div className="form-container">
-          <button onClick={() => setAdding(!adding)} className="plus-button">+</button>
+          <button onClick={() => setAdding(true)} className="plus-button">+</button>
         </div>
       }
+
+      {adding && newRestaurantPosition && (
+        <>
+          <div className="overlay" />
+          <div className="form-popup">
+            <div className="form-content">
+              <h3>Add New Restaurant</h3>
+              <label>
+                Name:
+                <input 
+                  type="text" 
+                  value={newRestaurant.name} 
+                  onChange={(e) => setNewRestaurant(prev => ({ ...prev, name: e.target.value }))} 
+                />
+              </label>
+              <label>
+                Location: ({newRestaurantPosition.lat.toFixed(7)}, {newRestaurantPosition.lng.toFixed(7)})
+              </label>
+              <label>
+                Rating:
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="5" 
+                    step="0.1" 
+                    value={newRestaurant.rating} 
+                    onChange={(e) => setNewRestaurant(prev => ({ 
+                      ...prev, 
+                      rating: parseFloat(parseFloat(e.target.value).toFixed(1)) 
+                    }))} 
+                    style={{ marginRight: '10px', flex: 1 }}
+                  />
+                  <input 
+                    type="number" 
+                    value={newRestaurant.rating} 
+                    onChange={(e) => setNewRestaurant(prev => ({ 
+                      ...prev, 
+                      rating: parseFloat(parseFloat(e.target.value).toFixed(1)) 
+                    }))} 
+                    step="0.1"
+                    min="0"
+                    max="5"
+                    style={{ width: '60px' }}
+                  />
+                </div>
+              </label>
+              <div>
+                <button onClick={handleCancel}>Cancel</button>
+                <button onClick={handleAddRestaurant}>Add Restaurant</button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
