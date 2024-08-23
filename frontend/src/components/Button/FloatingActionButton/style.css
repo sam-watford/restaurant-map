@@ -1,6 +1,4 @@
-
-
-.plus-button-container {
+.floating-action-button-container {
     position: absolute;
     top: 20px;
     right: 20px;
@@ -11,7 +9,7 @@
     z-index: 1000;
 }
 
-.plus-button {
+.floating-action-button {
     padding: 5px 10px;
     border: none;
     border-radius: 50%;
@@ -24,6 +22,6 @@
     height: 40px;
 }
 
-.plus-button:hover {
-  background-color: #e64a19;
+.floating-action-button:hover {
+    background-color: #e64a19;
 }
