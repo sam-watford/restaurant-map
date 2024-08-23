@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import RestaurantMap from '../../components/RestaurantMap';
+import RestaurantMap from './RestaurantMap';
 import axios from 'axios';
 import { IRestaurant } from 'types/Restaurant.type';
 

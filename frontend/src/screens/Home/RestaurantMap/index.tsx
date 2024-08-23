@@ -3,22 +3,22 @@ import {
     MapContainer,
     TileLayer,
     Marker,
-    Popup,
     useMap,
     useMapEvents,
 } from 'react-leaflet';
 import L from 'leaflet';
 import mapboxgl from 'mapbox-gl';
 
-mapboxgl.accessToken =
-    'pk.eyJ1Ijoic2FtLXdhdGZvcmQiLCJhIjoiY20wNjA4NDV3MDQ1dDJqb3F4OTl4cjF5MCJ9.uyyZ9VvLPBdlIU-rm20dXQ';
-
-import AddRestaurantButton from '../Button/AddRestaurantButton';
-import AddRestaurantForm from '../Form/AddRestaurantForm';
+import AddRestaurantButton from '../../../components/Button/AddRestaurantButton';
+import AddRestaurantForm from '../../../components/Form/RestaurantForm';
+import RestaurantPopup from '../../../components/Popup/RestaurantPopup';
 import { IRestaurant } from 'types/Restaurant.type';
 
 import 'leaflet/dist/leaflet.css';
 import './style.css';
+
+mapboxgl.accessToken =
+    'pk.eyJ1Ijoic2FtLXdhdGZvcmQiLCJhIjoiY20wNjA4NDV3MDQ1dDJqb3F4OTl4cjF5MCJ9.uyyZ9VvLPBdlIU-rm20dXQ';
 
 const restaurantIcon = L.icon({
     iconUrl: '/restaurant.png',
@@ -113,10 +113,7 @@ const RestaurantMap: React.FC<RestaurantMapProps> = ({
                     accessToken={mapboxgl.accessToken}
                 />
                 {restaurantsOnMap.map((restaurant) => {
-                    if (!restaurant) {
-                        return null;
-                    }
-                    return (
+                    return restaurant ? (
                         <Marker
                             key={restaurant.id}
                             position={[
@@ -125,27 +122,9 @@ const RestaurantMap: React.FC<RestaurantMapProps> = ({
                             ]}
                             icon={restaurantIcon}
                         >
-                            <Popup>
-                                <strong>{restaurant.name}</strong>
-                                <br />
-                                Rating: {restaurant.rating}
-                                <br />
-                                {restaurant.address && (
-                                    <span>Address: {restaurant.address}</span>
-                                )}
-                                {restaurant.image_url && (
-                                    <img
-                                        src={restaurant.image_url}
-                                        alt="Restaurant"
-                                        style={{
-                                            width: '100px',
-                                            height: '100px',
-                                        }}
-                                    />
-                                )}
-                            </Popup>
+                            <RestaurantPopup restaurant={restaurant} />
                         </Marker>
-                    );
+                    ) : null;
                 })}
                 <UpdateMapUrl />
                 <MapClickHandler
