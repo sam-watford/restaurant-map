@@ -1,0 +1,7 @@
+.map-container {
+    position: relative;
+}
+
+.leaflet-container.crosshair-cursor {
+    cursor: crosshair !important;
+}
