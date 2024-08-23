@@ -1,0 +1,32 @@
+.map-container {
+    position: relative;
+  }
+  
+  .form-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: white;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+  }
+  
+  .plus-button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 50%;
+    background-color: #ff5722;
+    color: white;
+    font-size: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 40px;
+    height: 40px;
+  }
+  
+  .plus-button:hover {
+    background-color: #e64a19;
+  }
+  

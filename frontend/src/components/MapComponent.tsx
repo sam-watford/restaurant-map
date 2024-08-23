@@ -1,11 +1,10 @@
-// src/components/MapComponent.tsx
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import mapboxgl from 'mapbox-gl';
+import './MapComponent.css';
 
-// Configure Mapbox token
 mapboxgl.accessToken = 'pk.eyJ1Ijoic2FtLXdhdGZvcmQiLCJhIjoiY20wNjA4NDV3MDQ1dDJqb3F4OTl4cjF5MCJ9.uyyZ9VvLPBdlIU-rm20dXQ';
 
 interface Restaurant {
@@ -29,7 +28,6 @@ const UpdateMapUrl: React.FC = () => {
   const updateUrl = () => {
     const center = map.getCenter();
     const zoom = map.getZoom();
-
     const url = `${window.location.origin}/@${center.lat},${center.lng},${zoom}z`;
     window.history.replaceState({}, '', url);
   };
@@ -40,6 +38,27 @@ const UpdateMapUrl: React.FC = () => {
 
   useMapEvents({
     moveend: updateUrl,
+  });
+
+  return null;
+};
+
+const MapClickHandler: React.FC<{ adding: boolean; setRestaurants: React.Dispatch<React.SetStateAction<Restaurant[]>>; setAdding: React.Dispatch<React.SetStateAction<boolean>> }> = ({ adding, setRestaurants, setAdding }) => {
+  useMapEvents({
+    click: (event: L.LeafletMouseEvent) => {
+      if (adding) {
+        const latlng = event.latlng;
+        const newRestaurant: Restaurant = {
+          id: Date.now(),
+          name: 'New Restaurant',
+          rating: 0,
+          latitude: latlng.lat,
+          longitude: latlng.lng,
+        };
+        setRestaurants(prevRestaurants => [...prevRestaurants, newRestaurant]);
+        setAdding(false);
+      }
+    },
   });
 
   return null;
@@ -153,28 +172,38 @@ const MapComponent: React.FC = () => {
       longitude: -97.3248859,
     },
   ]);
+  const [adding, setAdding] = useState(false);
 
   return (
-    <MapContainer center={[32.7512509, -97.341287]} zoom={16} style={{ height: '100vh', width: '100%' }}>
-      <TileLayer
-        url='https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}'
-        id='mapbox/streets-v12'
-        accessToken={mapboxgl.accessToken}
-      />
-      {restaurants.map(restaurant => (
-        <Marker
-          key={restaurant.id}
-          position={[restaurant.latitude, restaurant.longitude]}
-          icon={restaurantIcon}
-        >
-          <Popup>
-            <strong>{restaurant.name}</strong><br />
-            Rating: {restaurant.rating}
-          </Popup>
-        </Marker>
-      ))}
-      <UpdateMapUrl />
-    </MapContainer>
+    <div className="map-container">
+      <MapContainer center={[32.7512509, -97.341287]} zoom={16} style={{ height: '100vh', width: '100%' }}>
+        <TileLayer
+          url='https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}'
+          id='mapbox/streets-v12'
+          accessToken={mapboxgl.accessToken}
+        />
+        {restaurants.map(restaurant => (
+          <Marker
+            key={restaurant.id}
+            position={[restaurant.latitude, restaurant.longitude]}
+            icon={restaurantIcon}
+          >
+            <Popup>
+              <strong>{restaurant.name}</strong><br />
+              Rating: {restaurant.rating}
+            </Popup>
+          </Marker>
+        ))}
+        <UpdateMapUrl />
+        <MapClickHandler adding={adding} setRestaurants={setRestaurants} setAdding={setAdding} />
+      </MapContainer>
+
+      {!adding &&
+        <div className="form-container">
+          <button onClick={() => setAdding(!adding)} className="plus-button">+</button>
+        </div>
+      }
+    </div>
   );
 };
 
