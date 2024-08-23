@@ -193,17 +193,41 @@ const MapComponent: React.FC = () => {
                 />
               </label>
               <label>
-                Rating:
-                <input 
-                  type="number" 
-                  value={newRestaurant.rating} 
-                  onChange={(e) => setNewRestaurant(prev => ({ ...prev, rating: parseFloat(e.target.value) }))} 
-                  min="0"
-                  max="5"
-                />
+                Location: ({newRestaurantPosition.lat.toFixed(7)}, {newRestaurantPosition.lng.toFixed(7)})
               </label>
-              <button onClick={handleAddRestaurant}>Add Restaurant</button>
-              <button onClick={handleCancel}>Cancel</button>
+              <label>
+                Rating:
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="5" 
+                    step="0.1" 
+                    value={newRestaurant.rating} 
+                    onChange={(e) => setNewRestaurant(prev => ({ 
+                      ...prev, 
+                      rating: parseFloat(parseFloat(e.target.value).toFixed(1)) 
+                    }))} 
+                    style={{ marginRight: '10px', flex: 1 }}
+                  />
+                  <input 
+                    type="number" 
+                    value={newRestaurant.rating} 
+                    onChange={(e) => setNewRestaurant(prev => ({ 
+                      ...prev, 
+                      rating: parseFloat(parseFloat(e.target.value).toFixed(1)) 
+                    }))} 
+                    step="0.1"
+                    min="0"
+                    max="5"
+                    style={{ width: '60px' }}
+                  />
+                </div>
+              </label>
+              <div>
+                <button onClick={handleCancel}>Cancel</button>
+                <button onClick={handleAddRestaurant}>Add Restaurant</button>
+              </div>
             </div>
           </div>
         </>
