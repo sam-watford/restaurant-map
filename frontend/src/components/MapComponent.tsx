@@ -4,15 +4,22 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import mapboxgl from 'mapbox-gl';
 import './MapComponent.css';
+import axios from 'axios';
+
+// Constants
+const SERVER_URL = 'http://localhost:8000/api/restaurants/';
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoic2FtLXdhdGZvcmQiLCJhIjoiY20wNjA4NDV3MDQ1dDJqb3F4OTl4cjF5MCJ9.uyyZ9VvLPBdlIU-rm20dXQ';
 
 interface Restaurant {
-  id: number;
+  id?: number;
   name: string;
   rating: number;
   latitude: number;
   longitude: number;
+  address?: string;
+  image_url?: string;
+  image?: string;
 }
 
 const restaurantIcon = L.icon({
@@ -44,21 +51,36 @@ const UpdateMapUrl: React.FC = () => {
 };
 
 const MapClickHandler: React.FC<{ adding: boolean; setRestaurants: React.Dispatch<React.SetStateAction<Restaurant[]>>; setAdding: React.Dispatch<React.SetStateAction<boolean>> }> = ({ adding, setRestaurants, setAdding }) => {
-  useMapEvents({
-    click: (event: L.LeafletMouseEvent) => {
-      if (adding) {
-        const latlng = event.latlng;
-        const newRestaurant: Restaurant = {
-          id: Date.now(),
-          name: 'New Restaurant',
-          rating: 0,
-          latitude: latlng.lat,
-          longitude: latlng.lng,
-        };
-        setRestaurants(prevRestaurants => [...prevRestaurants, newRestaurant]);
+  const handleMapClick = async (event: L.LeafletMouseEvent) => {
+    if (adding) {
+      const latlng = event.latlng;
+      const newRestaurant: Omit<Restaurant, 'id'> = {
+        name: 'New Restaurant',
+        rating: 0,
+        latitude: latlng.lat,
+        longitude: latlng.lng,
+      };
+
+      try {
+        const response = await axios.post(SERVER_URL, newRestaurant);
+        if (response.status === 201) {
+          setRestaurants(prevRestaurants => [
+            ...prevRestaurants,
+            { ...newRestaurant, id: response.data.id }
+          ]);
+        } else {
+          console.error('Failed to add restaurant:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error adding restaurant:', error);
+      } finally {
         setAdding(false);
       }
-    },
+    }
+  };
+
+  useMapEvents({
+    click: handleMapClick,
   });
 
   return null;
@@ -66,113 +88,18 @@ const MapClickHandler: React.FC<{ adding: boolean; setRestaurants: React.Dispatc
 
 const MapComponent: React.FC = () => {
   const [adding, setAdding] = useState(false);
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([
-    {
-      id: 1,
-      name: 'Fort Worth Food Works',
-      rating: 4.9,
-      latitude: 32.7624286,
-      longitude: -97.3603063,
-    },
-    {
-      id: 2,
-      name: 'Toro Toro Fort Worth',
-      rating: 4.3,
-      latitude: 32.7559487,
-      longitude: -97.3324561,
-    },
-    {
-      id: 3,
-      name: 'Clay Pigeon Food & Drink',
-      rating: 4.6,
-      latitude: 32.7589,
-      longitude: -97.35608,
-    },
-    {
-      id: 4,
-      name: 'Little Red Wasp',
-      rating: 4.3,
-      latitude: 32.75224,
-      longitude: -97.329812,
-    },
-    {
-      id: 5,
-      name: 'The Capital Grille',
-      rating: 4.8,
-      latitude: 32.75247,
-      longitude: -97.32992,
-    },
-    {
-      id: 6,
-      name: 'GRACE',
-      rating: 4.6,
-      latitude: 32.7529693,
-      longitude: -97.3298985,
-    },
-    {
-      id: 7,
-      name: 'Razzoo\'s Cajun Cafe',
-      rating: 4.3,
-      latitude: 32.7551956,
-      longitude: -97.3319475,
-    },
-    {
-      id: 8,
-      name: 'Istanbul grill & bar',
-      rating: 4.7,
-      latitude: 32.754294,
-      longitude: -97.3329621,
-    },
-    {
-      id: 9,
-      name: 'Reata Restaurant',
-      rating: 4.5,
-      latitude: 32.7534473,
-      longitude: -97.3329569,
-    },
-    {
-      id: 10,
-      name: 'Taste Community Restaurant',
-      rating: 4.8,
-      latitude: 32.7316241,
-      longitude: -97.3260727,
-    },
-    {
-      id: 11,
-      name: 'Lounge Restaurant & Bar',
-      rating: 5,
-      latitude: 32.7531907,
-      longitude: -97.3336749,
-    },
-    {
-      id: 12,
-      name: 'branch & bird',
-      rating: 4.4,
-      latitude: 32.7524439,
-      longitude: -97.332991,
-    },
-    {
-      id: 13,
-      name: 'The Social House',
-      rating: 4.2,
-      latitude: 32.7503734,
-      longitude: -97.358536,
-    },
-    {
-      id: 14,
-      name: 'Tinies',
-      rating: 4.2,
-      latitude: 32.742859,
-      longitude: -97.325681,
-    },
-    {
-      id: 15,
-      name: 'Tia\'s On The Bluff',
-      rating: 4.1,
-      latitude: 32.7630306,
-      longitude: -97.3248859,
-    },
-  ]);
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+
+  useEffect(() => {
+    // Fetch restaurants from server
+    axios.get(SERVER_URL)
+      .then(response => {
+        setRestaurants(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching restaurants:', error);
+      });
+  }, []);
 
   useEffect(() => {
     const mapContainer = document.querySelector('.leaflet-container');
@@ -183,7 +110,7 @@ const MapComponent: React.FC = () => {
         mapContainer.classList.remove('crosshair-cursor');
       }
     }
-  }, [adding]);  
+  }, [adding]);
 
   return (
     <div className="map-container">
@@ -202,6 +129,9 @@ const MapComponent: React.FC = () => {
             <Popup>
               <strong>{restaurant.name}</strong><br />
               Rating: {restaurant.rating}
+              <br />
+              {restaurant.address && <span>Address: {restaurant.address}</span>}
+              {restaurant.image_url && <img src={restaurant.image_url} alt="Restaurant" style={{ width: '100px', height: '100px' }} />}
             </Popup>
           </Marker>
         ))}
