@@ -10,8 +10,9 @@ import L from 'leaflet';
 import mapboxgl from 'mapbox-gl';
 
 import AddRestaurantButton from '../../../components/Button/AddRestaurantButton';
-import AddRestaurantForm from '../../../components/Form/RestaurantForm';
+import RestaurantForm from '../../../components/Form/RestaurantForm';
 import RestaurantPopup from '../../../components/Popup/RestaurantPopup';
+import Overlay from '../../../components/Overlay';
 import { IRestaurant } from 'types/Restaurant.type';
 
 import 'leaflet/dist/leaflet.css';
@@ -138,12 +139,15 @@ const RestaurantMap: React.FC<RestaurantMapProps> = ({
             )}
 
             {isAdding && newRestaurant && (
-                <AddRestaurantForm
-                    newRestaurant={newRestaurant}
-                    setNewRestaurant={setNewRestaurant}
-                    onSubmit={handleAddRestaurant}
-                    onCancel={handleAddRestaurantCancel}
-                />
+                <>
+                    <Overlay />
+                    <RestaurantForm
+                        newRestaurant={newRestaurant}
+                        setNewRestaurant={setNewRestaurant}
+                        onSubmit={handleAddRestaurant}
+                        onCancel={handleAddRestaurantCancel}
+                    />
+                </>
             )}
         </div>
     );
