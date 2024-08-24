@@ -14,6 +14,7 @@ Requirements
 - Write a README describing how your app works, your thought process, and how to install and run your application.
 
 ## Screenshot
+
 <img width="1511" alt="Screenshot 2024-08-23 at 8 38 16 PM" src="https://github.com/user-attachments/assets/c57c223b-5e5d-4acd-8d67-633aeb7da947">
 
 ## Technologies Used
@@ -101,16 +102,19 @@ The application has the following dependencies:
 
 ## Things to improve
 
-- Feature enhancement and addition:
-  - Include image upload feature when creating new restaurant
-  - Add restaurant update and delete feature, which is for frontend
-  - Advanced search and filtering
-- Make quality application:
-  - User authentication and authorization for secure API endpoints
-  - Improve error handling on both frontend and backend
-  - Add unit and integration tests
-  - Implement logging for better insight into application
-- Use environment variables to manage configuration settings:
-  - `MAPBOXGL_ACCESS_TOKEN` for frontend
-  - `GOOGLE_API_KEY` for backend
-  - Server url, initial location and zoom parameter, etc
+- Feature Enhancements and Additions:
+  - Enable image upload when adding a new restaurant.
+  - Implement features to update and delete restaurant entries.
+  - Add timestamps (created_at and updated_at) to the restaurants table.
+  - Introduce advanced search and filtering options to help users find restaurants more easily.
+- Configuration Management:
+  - Use environment variables to handle configuration settings, such as:
+    - `MAPBOXGL_ACCESS_TOKEN` for frontend
+    - `GOOGLE_API_KEY` for backend
+    - Server URL, initial map location, and zoom level, among others.
+- Application Quality Improvements:
+  - Introduce a state management system in the frontend, such as Redux or React Context API.
+  - Enhance error handling throughout both the frontend and backend for better user experience.
+  - Implement logging to gain better insight into application performance and issues.
+  - Add unit and integration tests to improve the reliability and maintainability of the codebase.
+  - Implement user authentication and authorization to secure API endpoints and protect user data.
