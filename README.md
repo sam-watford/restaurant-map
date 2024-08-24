@@ -13,6 +13,9 @@ Requirements
 - The app should have the functionality to manually add a new restaurant and give it a rating.
 - Write a README describing how your app works, your thought process, and how to install and run your application.
 
+## Screenshot
+<img width="1511" alt="Screenshot 2024-08-23 at 8 38 16 PM" src="https://github.com/user-attachments/assets/c57c223b-5e5d-4acd-8d67-633aeb7da947">
+
 ## Technologies Used
 
 ### Backend
