@@ -37,7 +37,7 @@ def clear_restaurants(api_url):
     else:
         print(f"Failed to fetch restaurants. Response: {response.content}")
 
-def get_restaurants_near_location(location, radius=DEFAULT_RADIUS, keyword=''):
+def get_restaurants_near_location(location, radius, keyword=''):
     """
     Fetches restaurants near a specific location using Google Maps Places API
     and sends them to the Django backend via API POST requests.
@@ -82,6 +82,7 @@ def get_restaurants_near_location(location, radius=DEFAULT_RADIUS, keyword=''):
             next_page_token = response.json().get('next_page_token')
             if next_page_token:
                 print("Fetching next page...")
+                time.sleep(2)
                 params['pagetoken'] = next_page_token
             else:
                 break
