@@ -34,7 +34,8 @@ services:
 
   data_loader:
     build: ./backend
-    command: ["python", "load_data.py"]
+    command: >
+      sh -c "until curl -s http://backend:8000/api/restaurants/; do echo 'Waiting for backend...'; sleep 5; done; python load_data.py"
     depends_on:
       - backend
 
