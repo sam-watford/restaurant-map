@@ -89,7 +89,6 @@ The application has the following dependencies:
   - db: PostgreSQL database.
   - backend: Django application server.
   - frontend: React application server.
-  - data_loader: A service for loading initial data.
 
 4. Access the Application:
 
@@ -98,7 +97,7 @@ The application has the following dependencies:
 
 5. Loading initial data:
    If you need to load initial data, the data_loader service will handle it. Ensure it's running after your backend service is up.
-   `docker-compose run data_loader`
+   `docker-compose run backend python load_data.py`
 
 ## Things to improve
 

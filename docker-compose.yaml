@@ -1,43 +1,32 @@
-version: "3.7"
+version: "3.8"
 
 services:
   db:
-    image: postgres
+    image: postgres:16.4
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: energy_domain_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build: ./backend
-    command: >
-      sh -c "python manage.py migrate &&
-             python manage.py runserver 0.0.0.0:8000"
-    volumes:
-      - ./backend:/app
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   frontend:
     build: ./frontend
-    command: npm start
-    volumes:
-      - ./frontend:/app
     ports:
       - "3000:3000"
-    depends_on:
-      - backend
-
-  data_loader:
-    build: ./backend
-    command: >
-      sh -c "until curl -s http://backend:8000/api/restaurants/; do echo 'Waiting for backend...'; sleep 5; done; python load_data.py"
-    depends_on:
-      - backend
 
 volumes:
   postgres_data:
