@@ -4,7 +4,7 @@ import time
 
 API_URL = 'http://backend:8000/api/restaurants/'
 DEFAULT_RADIUS = 4000  # Default radius in meters
-API_KEY = 'AIzaSyAxPBifWS4_-oJ4ZjoSO7h5A9n4b-k1AG0'
+API_KEY = ''
 LOCATION = '32.7512509,-97.341287'
 
 def get_image_url(photo_reference):
