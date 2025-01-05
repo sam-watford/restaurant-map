@@ -117,3 +117,4 @@ The application has the following dependencies:
   - Implement logging to gain better insight into application performance and issues.
   - Add unit and integration tests to improve the reliability and maintainability of the codebase.
   - Implement user authentication and authorization to secure API endpoints and protect user data.
+
